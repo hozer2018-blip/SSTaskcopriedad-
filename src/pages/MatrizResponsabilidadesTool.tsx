@@ -201,32 +201,69 @@ export default function MatrizResponsabilidadesTool() {
   };
 
   // 4. EXPORTAR SOPORTE A EXCEL (Para Auditorias)
-  const exportarSoporte = () => {
+  const exportarSoporte = async () => {
     if (colaboradores.length === 0 || responsabilidades.length === 0) {
       alert("No hay datos suficientes para exportar.");
       return;
     }
 
-    // Estructura para el Excel: Filas=Responsabilidades, Columnas=Colaboradores
-    const cabeceras = ['Descripcion de la Responsabilidad', ...colaboradores.map(c => c.nombre_completo)];
-    
-    const filas = responsabilidades.map(resp => {
-      const fila = [resp.descripcion];
-      colaboradores.forEach(colab => {
-        // Para este MVP, si esta seleccionado actualmente, pone una X. 
-        // (En la proxima version esto vendra de la base de datos sst_asignaciones)
-        const tieneAsignacion = colab.id === colaboradorSeleccionado?.id && asignaciones.includes(resp.id);
-        fila.push(tieneAsignacion ? 'X' : '');
-      });
-      return fila;
-    });
+    try {
+      // Necesitamos cargar TODAS las asignaciones de todos los trabajadores para el reporte,
+      // no solo del trabajador seleccionado actualmente.
+      const { data: todasAsignaciones, error } = await supabase
+        .from('sst_asignaciones')
+        .select('*');
+        
+      if (error) throw error;
 
-    const datosFinales = [cabeceras, ...filas];
-    const hoja = XLSX.utils.aoa_to_sheet(datosFinales);
-    const libro = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(libro, hoja, 'Matriz_Soporte');
-    
-    XLSX.writeFile(libro, 'Soporte_Matriz_Responsabilidades_SGSST.xlsx');
+      // Estructura para el Excel
+      
+      // Fila 1: Cabeceras de nombres
+      const cabeceras = ['Descripcion de la Responsabilidad', ...colaboradores.map(c => c.nombre_completo)];
+      
+      // Fila 2: Fecha de firma electronica (formateada)
+      const filaFirmas = ['Fecha Aceptacion Firma Electronica'];
+      colaboradores.forEach(colab => {
+        if (colab.firma_electronica && colab.fecha_firma) {
+          const fecha = new Date(colab.fecha_firma);
+          filaFirmas.push(fecha.toLocaleString());
+        } else {
+          filaFirmas.push('Pendiente');
+        }
+      });
+
+      // Fila 3: Tratamiento de datos (Habeas Data)
+      const filaDatos = ['Aceptacion Habeas Data (Ley 1581)'];
+      colaboradores.forEach(colab => {
+        filaDatos.push(colab.habeas_data ? 'SI' : 'NO');
+      });
+
+      // Fila 4 vacia como separador
+      const separador = [''];
+      
+      // Filas de matriz de responsabilidades
+      const filas = responsabilidades.map(resp => {
+        const fila = [resp.descripcion];
+        colaboradores.forEach(colab => {
+          // Buscamos si existe la asignacion en la BD
+          const tieneAsignacion = todasAsignaciones?.some(
+            a => a.colaborador_id === colab.id && a.responsabilidad_id === resp.id
+          );
+          fila.push(tieneAsignacion ? 'X' : '');
+        });
+        return fila;
+      });
+
+      const datosFinales = [cabeceras, filaFirmas, filaDatos, separador, ...filas];
+      const hoja = XLSX.utils.aoa_to_sheet(datosFinales);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, 'Matriz_Soporte');
+      
+      XLSX.writeFile(libro, 'Soporte_Matriz_Responsabilidades_SGSST.xlsx');
+    } catch (e) {
+      console.error("Error exportando excel:", e);
+      alert("Hubo un error al generar el archivo Excel.");
+    }
   };
 
   if (isLoading) {

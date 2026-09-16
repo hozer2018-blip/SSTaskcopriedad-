@@ -53,13 +53,31 @@ export default function PortalColaborador() {
     }
   };
 
-  const handleFirmar = () => {
-    if (!aceptaTerminos || !aceptaDatos) return;
+  const handleFirmar = async () => {
+    if (!aceptaTerminos || !aceptaDatos || !token) return;
+    
     setIsSigning(true);
-    setTimeout(() => {
-      setIsSigning(false);
+    
+    try {
+      // Guardar en base de datos la aceptacion y la fecha/hora
+      const { error } = await supabase
+        .from('sst_colaboradores')
+        .update({
+          firma_electronica: true,
+          habeas_data: true,
+          fecha_firma: new Date().toISOString()
+        })
+        .eq('id', token);
+
+      if (error) throw error;
+      
       setIsSigned(true);
-    }, 1500);
+    } catch (error) {
+      console.error("Error al guardar firma:", error);
+      alert("Hubo un error al registrar tu firma. Intentalo de nuevo.");
+    } finally {
+      setIsSigning(false);
+    }
   };
 
   if (isLoading) {
