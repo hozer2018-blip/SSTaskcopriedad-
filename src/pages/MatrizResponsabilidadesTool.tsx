@@ -33,7 +33,10 @@ export default function MatrizResponsabilidadesTool() {
         .limit(1);
         
       if (managerError) throw managerError;
-      if (!managers || managers.length === 0) throw new Error("No esta asignado a ninguna entidad.");
+      if (!managers || managers.length === 0) {
+        alert("Atencion: Tu usuario no esta asignado como Responsable de ninguna empresa. Las funciones estaran deshabilitadas.");
+        throw new Error("No esta asignado a ninguna entidad.");
+      }
       
       const currentPropertyId = managers[0].property_id;
       setPropertyId(currentPropertyId);
@@ -105,7 +108,14 @@ export default function MatrizResponsabilidadesTool() {
 
   // 2. LOGICA DE INTERFAZ (AGREGAR / ELIMINAR / ASIGNAR)
   const agregarResponsabilidad = async () => {
-    if (!nuevaResp.trim() || !propertyId) return;
+    if (!nuevaResp.trim()) {
+      alert("Por favor escribe una responsabilidad.");
+      return;
+    }
+    if (!propertyId) {
+      alert("Error: No se pudo identificar la empresa (Property ID).");
+      return;
+    }
     
     // Insercion real en Supabase
     const { data, error } = await supabase
@@ -121,7 +131,7 @@ export default function MatrizResponsabilidadesTool() {
       setNuevaResp('');
     } else {
       console.error("Error al agregar responsabilidad:", error);
-      alert("Asegurate de ejecutar el script SQL para crear la tabla sst_responsabilidades.");
+      alert(`Error al guardar en base de datos: ${error?.message || 'Error desconocido'}`);
     }
   };
 
