@@ -135,7 +135,7 @@ export default function PortalColaborador() {
                 <p className="text-slate-500 text-sm">No tienes responsabilidades especificas asignadas en este momento.</p>
               </div>
             ) : (
-              <ul className="space-y-3">
+              <ul className="space-y-3 mb-8">
                 {responsabilidades.map((resp, index) => (
                   <li key={index} className="flex gap-3 p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
                     <div className="mt-0.5 shrink-0">
@@ -148,6 +148,27 @@ export default function PortalColaborador() {
                 ))}
               </ul>
             )}
+
+            <div className="mt-8 pt-6 border-t border-slate-200">
+              <button 
+                onClick={() => {
+                  alert("Has aceptado tus responsabilidades exitosamente. Ya puedes cerrar esta ventana.");
+                  // Opcional: Redirigir a una web externa o recargar para limpiar estado
+                  window.location.href = "https://www.google.com";
+                }}
+                className="w-full bg-[#0B1727] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-md mb-3"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                He leido y acepto mis responsabilidades
+              </button>
+              
+              <button 
+                onClick={() => setViendoResponsabilidades(false)}
+                className="w-full bg-white border border-slate-300 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-50 transition-all"
+              >
+                Volver atras
+              </button>
+            </div>
           </div>
         </div>
       </div>
