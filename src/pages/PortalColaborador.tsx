@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ShieldCheck, CheckCircle2, AlertCircle, FileSignature, Fingerprint } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, AlertCircle, FileSignature, Fingerprint, ClipboardList } from 'lucide-react';
 
 export default function PortalColaborador() {
   const { token } = useParams();
@@ -28,9 +28,20 @@ export default function PortalColaborador() {
           <CheckCircle2 className="w-10 h-10 text-[#20c997]" />
         </div>
         <h1 className="text-2xl font-bold text-[#0B1727] mb-2">!Validacion Legal Exitosa!</h1>
-        <p className="text-slate-500 max-w-sm">
+        <p className="text-slate-500 max-w-sm mb-8">
           Gracias {colaboradorInfo.nombre}. Tu firma electronica y consentimiento han sido registrados inmodificablemente en el SG-SST.
         </p>
+        
+        {/* NUEVO BOTON PARA VER RESPONSABILIDADES */}
+        <button 
+          className="bg-[#0B1727] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-800 transition-colors shadow-lg"
+          onClick={() => {
+            alert("Esta funcion cargara tus responsabilidades desde la base de datos.");
+          }}
+        >
+          <ClipboardList className="w-5 h-5" />
+          Ver mis Responsabilidades Asignadas
+        </button>
       </div>
     );
   }
