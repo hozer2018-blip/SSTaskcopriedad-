@@ -153,8 +153,8 @@ export default function PortalColaborador() {
               <button 
                 onClick={() => {
                   alert("Has aceptado tus responsabilidades exitosamente. Ya puedes cerrar esta ventana.");
-                  // Opcional: Redirigir a una web externa o recargar para limpiar estado
-                  window.location.href = "https://www.google.com";
+                  // Redirigir a la web principal de SSTask
+                  window.location.href = "https://sstask-laing.vercel.app/#beneficios";
                 }}
                 className="w-full bg-[#0B1727] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-md mb-3"
               >
